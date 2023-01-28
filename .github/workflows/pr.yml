@@ -28,4 +28,4 @@ jobs:
           cargo clippy
       - name: build-image
         run: |
-          ./scripts/build.sh
+          ./scripts/build.sh prod

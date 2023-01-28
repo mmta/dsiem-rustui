@@ -20,10 +20,12 @@ jobs:
           rust-version: stable
           components: clippy
           targets: wasm32-unknown-unknown
+      - uses: jetli/trunk-action@v0.4.0
+        with:
+          version: "latest"
       - name: lint
         run: |
           cargo clippy
       - name: build-image
         run: |
-          cargo install --locked trunk
           ./scripts/build.sh

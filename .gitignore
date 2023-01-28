@@ -1,0 +1,12 @@
+/dist
+/docker/dist
+/target
+/dev
+/config
+/ui
+/assets
+/scripts/target
+node_modules
+package.json
+package-lock.json
+tailwind.css

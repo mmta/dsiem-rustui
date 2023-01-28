@@ -16,7 +16,7 @@ Example screenshot:
 ## Setup & Integration
 
 - Setup [Rust](https://www.rust-lang.org/tools/install) development environment on Linux.
-- Install minimal [`NodeJS`](https://nodejs.org/en/download/) tools too, they'll be used to get CSS files.
+- Install minimal [NodeJs](https://nodejs.org/en/download/) tools too, they'll be used to get CSS files.
 - Install `trunk`:
     ```shell
     $ cargo install --locked trunk

@@ -18,11 +18,12 @@ jobs:
         uses: hecrj/setup-rust-action@v1.4.1
         with:
           rust-version: stable
-          components: clippy,trunk
+          components: clippy
           targets: wasm32-unknown-unknown
       - name: lint
         run: |
           cargo clippy
       - name: build-image
         run: |
+          cargo install --locked trunk
           ./scripts/build.sh

@@ -1,6 +1,5 @@
 use chrono::TimeZone;
 use chrono::Utc;
-use gloo_console::log;
 use web_sys::EventTarget;
 use web_sys::HtmlSelectElement;
 use wasm_bindgen::JsCast;
@@ -65,13 +64,6 @@ pub struct DetailProps {
 
 #[function_component]
 fn AlarmDetail(props: &DetailProps) -> Html {
-    let utc = chrono::Utc::now();
-    let loc = chrono::Local::now();
-
-    log!("utc: ", utc.to_string());
-    log!("loc: ", loc.to_string());
-    log!("utc with loc: ", utc.with_timezone(&chrono::Local).to_string());
-
     let a = &props.alarm;
     let toast_show = use_state(|| false);
     let toast_border = use_state(|| "border-green-500");

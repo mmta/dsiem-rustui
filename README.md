@@ -1,6 +1,7 @@
 # Dsiem Rust UI
+[![CI](https://github.com/mmta/dsiem-rustui/actions/workflows/publish.yml/badge.svg)](https://github.com/mmta/dsiem-rustui/actions/workflows/publish.yml)
 
-This is an experimental [Yew](https://yew.rs/)-based WebAssembly for managing alarms in [Dsiem](https://github.com/defenxor/dsiem). The aim is to replace the existing Angular [web UI](https://github.com/defenxor/dsiem/blob/master/docs/web_interfaces.md#dsiem-web-ui) with something that will have fewer dependabot warnings over time.
+This is an experimental [Yew](https://yew.rs/)-based WebAssembly app for managing alarms in [Dsiem](https://github.com/defenxor/dsiem). The aim is to replace the existing Angular [web UI](https://github.com/defenxor/dsiem/blob/master/docs/web_interfaces.md#dsiem-web-ui) with something that will have fewer dependabot warnings over time.
 
 This app has fewer functionalities (and much smaller download) than the existing web UI. The only available functions are:
 - Single alarm view: linking alarm with its associated events in one page.

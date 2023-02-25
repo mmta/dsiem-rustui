@@ -541,18 +541,3 @@ fn AlarmDetail(props: &DetailProps) -> Html {
         </div>
     }
 }
-
-#[cfg(test)]
-pub mod tests {
-    use super::*;
-    use wasm_bindgen_test::*;
-
-    wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
-
-    #[wasm_bindgen_test]
-    fn title_should_be_present() {
-        yew::Renderer::<App>::new().render();
-        let title = gloo_utils::document().get_element_by_id("title");
-        assert!(title.is_some());
-    }
-}

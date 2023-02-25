@@ -1,5 +1,5 @@
 use reqwasm::http::Request;
-use serde::Deserialize;
+use serde::{ Deserialize, Serialize };
 use serde_json::Value;
 use gloo_console::warn;
 use chrono::prelude::*;
@@ -89,10 +89,15 @@ pub struct AlarmEvent {
     pub stage: u8,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct AlarmEvents {
     #[serde(rename(deserialize = "_source"))]
+    #[serde(skip_serializing)]
     pub source: AlarmEvent,
+    #[serde(rename(deserialize = "_index", serialize = "_index"))]
+    pub index: String,
+    #[serde(rename(deserialize = "_id", serialize = "_id"))]
+    pub id: String,
 }
 
 #[derive(Deserialize, Clone, PartialEq)]
@@ -130,8 +135,46 @@ pub async fn update_field(
         .map_err(|e| e.to_string())?;
     let body = resp.text().await.map_err(|e| e.to_string())?;
     let v: Value = serde_json::from_str(body.as_str()).map_err(|e| e.to_string())?;
+    if v["error"].as_null().is_none() {
+        return Err(v["error"]["reason"].to_string());
+    }
     let res = v["result"].to_string();
     Ok(res)
+}
+
+pub async fn delete_alarm(search_addr: String, id: String) -> Result<String, String> {
+    // first siem_alarm_events, using _bulk API
+    let alarm_events = get_alarm_event(&search_addr, &id).await?;
+    let mut delete_data = "".to_string();
+    for ae in alarm_events.into_iter() {
+        let str = serde_json::to_string(&ae).unwrap();
+        delete_data = delete_data + r#"{ "delete" : "# + &str + r#"}"# + "\n";
+    }
+    let url = search_addr.clone() + INDEX_ALARM_EVENT + "/_bulk";
+    _ = Request::post(url.as_str())
+        .body(delete_data)
+        .header("Content-Type", "application/json")
+        .send().await
+        .map_err(|e| e.to_string())?;
+
+    // next for siem_alarms
+    // curl -XPOST -H 'content-type:application/json' 'localhost:9200/siem_alarms/_delete_by_query' -d'{"query": { "match" : { "_id": "7deNuzN2k" } } }'
+
+    let url = search_addr + INDEX_ALARM + "/_delete_by_query?refresh=true";
+    let data = r#"{ "query": { "match": { "_id": ""#.to_owned() + &id + r#"" } } }"#;
+    let resp = Request::post(url.as_str())
+        .body(data)
+        .header("Content-Type", "application/json")
+        .send().await
+        .map_err(|e| e.to_string())?;
+    let body = resp.text().await.map_err(|e| e.to_string())?;
+    let v: Value = serde_json::from_str(body.as_str()).map_err(|e| e.to_string())?;
+    if let Some(n) = v["deleted"].as_u64() {
+        if n > 0 {
+            return Ok("deleted".to_string());
+        }
+    }
+    Err("alarm not found".to_owned())
 }
 
 pub async fn read(dsiem_baseurl: String, id: String) -> Result<Alarm, String> {
@@ -188,6 +231,7 @@ async fn get_alarm_event(
     let v: Value = serde_json::from_str(body.as_str()).map_err(|e| e.to_string())?;
     let hits = v["hits"]["hits"].to_string();
     let alarm_events: Vec<AlarmEvents> = serde_json::from_str(&hits).map_err(|e| e.to_string())?;
+
     Ok(alarm_events)
 }
 

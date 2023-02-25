@@ -1,5 +1,6 @@
 use chrono::TimeZone;
 use chrono::Utc;
+use gloo_console::info;
 use web_sys::EventTarget;
 use web_sys::HtmlSelectElement;
 use wasm_bindgen::JsCast;
@@ -71,6 +72,7 @@ fn AlarmDetail(props: &DetailProps) -> Html {
     let stage: UseStateHandle<u8> = use_state(|| 1);
     let status_handle = use_state(|| a.status.clone());
     let tag_handle = use_state(|| a.tag.clone());
+
     let update_status = use_async({
         let status = status_handle.to_string();
         let alarm_id = a.id.clone();
@@ -80,6 +82,7 @@ fn AlarmDetail(props: &DetailProps) -> Html {
             alarm::update_field(search_addr, index, alarm_id, "status".to_owned(), status).await
         }
     });
+
     let update_tag = use_async({
         let tag = tag_handle.to_string();
         let alarm_id = a.id.clone();
@@ -88,6 +91,12 @@ fn AlarmDetail(props: &DetailProps) -> Html {
         async move {
             alarm::update_field(search_addr, index, alarm_id, "tag".to_owned(), tag).await
         }
+    });
+
+    let delete_alarm = use_async({
+        let alarm_id = a.id.clone();
+        let search_addr = a.search_config.search.clone();
+        async move { alarm::delete_alarm(search_addr, alarm_id).await }
     });
 
     use_effect_with_deps(
@@ -153,6 +162,37 @@ fn AlarmDetail(props: &DetailProps) -> Html {
         update_tag.loading
     );
 
+    use_effect_with_deps(
+        {
+            let delete_alarm = delete_alarm.clone();
+            let toast_show = toast_show.clone();
+            let toast_text = toast_text.clone();
+            let toast_border = toast_border.clone();
+            move |_| {
+                if !delete_alarm.loading {
+                    if let Some(error) = &delete_alarm.error {
+                        toast_text.set(format!("Error deleting alarm: {}", error));
+                        toast_border.set("border-red-500");
+                        toast_show.set(true);
+                        Timeout::new(3000, move || {
+                            toast_show.set(false);
+                        }).forget();
+                        return;
+                    }
+                    if let Some(result) = &delete_alarm.data {
+                        toast_border.set("border-green-500");
+                        toast_text.set(format!("Deleting alarm result: {}", result));
+                        toast_show.set(true);
+                        Timeout::new(3000, move || {
+                            toast_show.set(false);
+                        }).forget();
+                    }
+                }
+            }
+        },
+        delete_alarm.loading
+    );
+
     let on_status_change = {
         let status_handle = status_handle;
         let update_status = update_status.clone();
@@ -180,6 +220,13 @@ fn AlarmDetail(props: &DetailProps) -> Html {
                 tag_handle.set(input.value());
                 update_tag.run();
             }
+        })
+    };
+
+    let on_delete = {
+        let alarm_id = a.id.clone();
+        Callback::from(move |_| {
+            delete_alarm.run();
         })
     };
 
@@ -226,6 +273,7 @@ fn AlarmDetail(props: &DetailProps) -> Html {
                         <th scope="col" class={classes!("px-6","py-3")}>{"Tag"}</th>
                         <th scope="col" class={classes!("px-6","py-3")}>{"Sources"}</th>
                         <th scope="col" class={classes!("px-6","py-3")}>{"Destinations"}</th>
+                        <th scope="col" class={classes!("px-6","py-3")}>{"Action"}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -259,6 +307,7 @@ fn AlarmDetail(props: &DetailProps) -> Html {
                         </td>
                         <td class={classes!("px-6","py-4")}>{a.src_ips.clone()}</td>
                         <td class={classes!("px-6","py-4")}>{a.dst_ips.clone()}</td>
+                        <td class={classes!("px-6","py-4")}><button id="delete" onclick={on_delete}>{"Delete"}</button></td>
                     </tr>
                 </tbody>
             </table>

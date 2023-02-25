@@ -1,6 +1,5 @@
 use chrono::TimeZone;
 use chrono::Utc;
-use gloo_console::info;
 use web_sys::EventTarget;
 use web_sys::HtmlSelectElement;
 use wasm_bindgen::JsCast;
@@ -224,7 +223,6 @@ fn AlarmDetail(props: &DetailProps) -> Html {
     };
 
     let on_delete = {
-        let alarm_id = a.id.clone();
         Callback::from(move |_| {
             delete_alarm.run();
         })
@@ -250,7 +248,7 @@ fn AlarmDetail(props: &DetailProps) -> Html {
 
             // title
             <div class={classes!("px-4", "py-5", "sm:px-6")}>
-                <h2 class={classes!("text-lg", "font-medium", "text-gray-900", "dark:text-white")}>{a.title.clone()}
+                <h2 id="title" class={classes!("text-lg", "font-medium", "text-gray-900", "dark:text-white")}>{a.title.clone()}
                 {
                     if update_status.loading || update_tag.loading {
                         html! {<span class={classes!("loading", "dots")}>{"\u{00a0}\u{00a0}\u{00a0}"}</span>}

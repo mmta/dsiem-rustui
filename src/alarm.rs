@@ -7,7 +7,7 @@ use chrono::prelude::*;
 use crate::config;
 
 const INDEX_ALARM_EVENT: &str = "siem_alarm_events-*";
-const INDEX_ALARM: &str = "siem_alarms-*";
+const INDEX_ALARM: &str = "siem_alarms";
 const INDEX_EVENT: &str = "siem_events-*";
 const MAX_EVENTS: &str = "1000";
 

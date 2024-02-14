@@ -2,6 +2,11 @@
 
 [![CI](https://github.com/mmta/dsiem-rustui/actions/workflows/publish.yml/badge.svg)](https://github.com/mmta/dsiem-rustui/actions/workflows/publish.yml)
 
+>[!WARNING]
+>This repo had been merged into [Defenxor Dsiem-rs](https://github.com/defenxor/dsiem-rs).
+>There will be no new updates or releases here; developments will continue in that repo instead.
+>
+
 This is an experimental [Yew](https://yew.rs/)-based WebAssembly app for managing alarms in [Dsiem](https://github.com/defenxor/dsiem). The aim is to replace the existing Angular [web UI](https://github.com/defenxor/dsiem/blob/master/docs/web_interfaces.md#dsiem-web-ui) with something that will have fewer dependabot warnings over time.
 
 This app has fewer functionalities (and much smaller download) than the existing web UI. The only available functions are:
